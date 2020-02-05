@@ -7,6 +7,9 @@ let checkUnfinishedMovement = true;
 let checkOppositeMovement = null;
 let checkEatAnApple = true;
 
+const locationSnake = [[5, 5]];
+const sizeField = 10;
+
 let masIdField = [];
 for (let i = 0; i < 10; i++) {
     masIdField[i] = [];
@@ -15,20 +18,22 @@ for (let i = 0; i < 10; i++) {
     }
 }
 
-function buildField(id) {
-    document.getElementById('clickMe').remove();
-    let tbody = document.getElementById(id).getElementsByTagName('TBODY')[0];
-    for (let i = 0; i < 10; i++) {
-        let row = document.createElement("tr");
-        tbody.appendChild(row);
-        for (let j = 0; j < 10; j++) {
-            masIdField[i][j] =  "f" + (i * 10 + j);
-            let field = document.createElement("td");
-            field.id = masIdField[i][j];
-            row.appendChild(field);
+function buildGameField(id) {
+    document.getElementById('clickMe').style.display = 'none';
+    let gameField = document.getElementsByClassName(id)[0];
+    for (let i = 0; i < sizeField; i++) {
+        let rowCells = document.createElement("div");
+        rowCells.setAttribute('class', 'rowCells');
+        for (let i = 0; i < sizeField; i++) {
+            let cell = document.createElement("div");
+            cell.setAttribute('cellNumber', i+1);
+            cell.setAttribute('class', 'cell');
+            rowCells.appendChild(cell);
         }
+        gameField.appendChild(rowCells);
     }
 }
+
 function arrowMotionProcessing(){
     if (firstStepSnake > 0) {
         firstStepSnake--;

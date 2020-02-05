@@ -5,25 +5,30 @@
     <title>Snake 1.0</title>
 </head>
 <style>
-    td{
+    td {
         width: 30px;
         height: 30px;
         background-color: green;
         border: solid 1px black;
     }
-    #f55{
+    #f55 {
         background-color: red;
+    }
+    .cell {
+        border: black 1px solid;
+        width: 30px;
+        height: 30px;
+        margin: 2px 2px;
+    }
+    .gameField {
+        display: flex;
+        flex-wrap: wrap;
     }
 </style>
 <script src="snakeJS.js"></script>
 <body>
-<form>
-    <input id="clickMe" type="button" value="New game" onclick="buildField('field'); runSnake();" />
-    <table id="field">
-        <tbody>
-        </tbody>
-    </table>
-</form>
+    <button id="clickMe" onclick="buildGameField('gameField');">New game</button>
+    <div class="gameField"></div>
 </body>
 
 </html>
