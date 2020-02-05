@@ -9,6 +9,8 @@ let checkEatAnApple = true;
 
 const locationSnake = [[5, 5]];
 const sizeField = 10;
+const locationApple = [];
+
 
 let masIdField = [];
 for (let i = 0; i < 10; i++) {
@@ -21,15 +23,18 @@ for (let i = 0; i < 10; i++) {
 function buildGameField(id) {
     document.getElementById('clickMe').style.display = 'none';
     let gameField = document.getElementsByClassName(id)[0];
+
     for (let i = 0; i < sizeField; i++) {
         let rowCells = document.createElement("div");
         rowCells.setAttribute('class', 'rowCells');
+
         for (let i = 0; i < sizeField; i++) {
             let cell = document.createElement("div");
             cell.setAttribute('cellNumber', i+1);
             cell.setAttribute('class', 'cell');
             rowCells.appendChild(cell);
         }
+
         gameField.appendChild(rowCells);
     }
 }
@@ -98,25 +103,57 @@ function pushProcessingLR(run) {
     }
 }
 
+
+function calculateLocationApple() {
+    const row = Math.floor(Math.random() * (sizeField - 1)) + 1;
+    const column = Math.floor(Math.random() * (sizeField - 1)) + 1;
+
+    locationApple[0] = row;
+    locationApple[1] = column;
+
+    return setTimeout(calculateLocationApple, 5000);
+}
+
 function runSnake() {
-    document.onkeydown = function (event) {
-        setInterval(checkAppleOnSnake, 100);
-        if (checkRun !== event.code)
-            switch (event.code) {
-                case "ArrowDown":
-                    pushProcessingDU(moveDown);
-                    break;
-                case "ArrowUp":
-                    pushProcessingDU(moveUp);
-                    break;
-                case "ArrowRight":
-                    pushProcessingLR(moveRight);
-                    break;
-                case "ArrowLeft":
-                    pushProcessingLR(moveLeft);
-                    break;
-            }
-    };
+    document.addEventListener('keydown', function(event) {
+
+        calculateLocationApple();
+
+        switch(event.code) {
+            case 'ArrowLeft':
+                console.log('left');
+                break;
+            case 'ArrowUp':
+                console.log('up');
+                break;
+            case 'ArrowRight':
+                console.log('right');
+                break;
+            case 'ArrowDown':
+                console.log('down');
+                break;
+            default:
+                break;
+        }
+      });
+    // document.onkeydown = function (event) {
+    //     setInterval(checkAppleOnSnake, 100);
+    //     if (checkRun !== event.code)
+    //         switch (event.code) {
+    //             case "ArrowDown":
+    //                 pushProcessingDU(moveDown);
+    //                 break;
+    //             case "ArrowUp":
+    //                 pushProcessingDU(moveUp);
+    //                 break;
+    //             case "ArrowRight":
+    //                 pushProcessingLR(moveRight);
+    //                 break;
+    //             case "ArrowLeft":
+    //                 pushProcessingLR(moveLeft);
+    //                 break;
+    //         }
+    // };
 }
 
 function checkAppleOnSnake() {
