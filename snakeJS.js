@@ -1,10 +1,12 @@
 let locationSnake = [55];
+let directionSnake = 'up';
 let sizeSnake = 3;
 const sizeField = 10;
 let locationApple;
 let appleIsExist = false;
 let counterCreateApple = 0
 const speed = 300;
+let queueEatApple = [];
 
 function buildGameField(id) {
     document.getElementById('clickMe').style.display = 'none';
@@ -72,7 +74,6 @@ function createApple() {
     appleIsExist = true;
 }
 
-let directionSnake = 'up';
 
 function changeColorCell(location, color) {
     const cells = Array.from(document.getElementsByClassName('cell'));
@@ -104,13 +105,22 @@ function checkIsFinishGame(cell) {
     return locationSnake.includes(cell);
 }
 
-function deleteLastStep() {
+function deleteLastStep(step) {
     changeColorCell(locationSnake[0], 'transparent');
     locationSnake = locationSnake.filter((location, index) => index !== 0);
 }
 
+function increaseSnake() {
+    changeColorCell(queueEatApple[0].step, 'green');
+
+    locationSnake = [queueEatApple[0].step, ...locationSnake];
+
+    queueEatApple = queueEatApple.filter((location, index) => index !== 0);
+}
+
 function moveSnake() {
     const cell = calculateLocationStep();
+
     
     if(checkIsFinishGame(cell)) {
         alert(`Конец игры!!! Ваш счет ${locationSnake.length}`);
@@ -123,12 +133,23 @@ function moveSnake() {
         deleteLastStep();
     }
 
+    if(queueEatApple.length) {
+
+        queueEatApple.forEach(cell => {
+            cell.counter--;
+        })
+
+        if(!queueEatApple[0].counter) {
+            increaseSnake();
+        }
+    }
+
     changeColorCell(cell, 'green');
     
     if(checkAppleEaten(cell)) {
         appleIsExist = false;
         counterCreateApple = 0;
-        sizeSnake++;
+        queueEatApple.push({step: cell, counter: locationSnake.length});
     }
 
 }
