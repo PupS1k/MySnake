@@ -120,7 +120,6 @@ function increaseSnake() {
 
 function moveSnake() {
     const cell = calculateLocationStep();
-
     
     if(checkIsFinishGame(cell)) {
         alert(`Конец игры!!! Ваш счет ${locationSnake.length}`);
@@ -155,6 +154,9 @@ function moveSnake() {
 }
 
 function runSnake() {
+
+    canTakeStep = true;
+    
     if(!appleIsExist || counterCreateApple === Math.ceil(speed * 3 / 100)) {
         createApple();
     }
@@ -166,24 +168,29 @@ function runSnake() {
     return setTimeout(runSnake, speed);
 }
 
+let canTakeStep = true;
+
 function beginGame() {
 
     document.addEventListener('keydown', function(event) {
-        switch (event.code) {
-            case "ArrowDown":
-                directionSnake = directionSnake !== 'up' ? 'down' : 'up';
-                break;
-            case "ArrowUp":
-                directionSnake = directionSnake !== 'down' ? 'up' : 'down';
-                break;
-            case "ArrowRight":
-                directionSnake = directionSnake !== 'left' ? 'right' : 'left';
-                break;
-            case "ArrowLeft":
-                directionSnake = directionSnake !== 'right' ? 'left' : 'right';
-                break;
-            default:
-                break;
+        if(canTakeStep) {
+            canTakeStep = false;
+            switch (event.code) {
+                case "ArrowDown":
+                    directionSnake = directionSnake !== 'up' ? 'down' : 'up';
+                    break;
+                case "ArrowUp":
+                    directionSnake = directionSnake !== 'down' ? 'up' : 'down';
+                    break;
+                case "ArrowRight":
+                    directionSnake = directionSnake !== 'left' ? 'right' : 'left';
+                    break;
+                case "ArrowLeft":
+                    directionSnake = directionSnake !== 'right' ? 'left' : 'right';
+                    break;
+                default:
+                    break;
+            }
         }
       });
 
