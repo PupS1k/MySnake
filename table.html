@@ -5,15 +5,6 @@
     <title>Snake 1.0</title>
 </head>
 <style>
-    td {
-        width: 30px;
-        height: 30px;
-        background-color: green;
-        border: solid 1px black;
-    }
-    #f55 {
-        background-color: red;
-    }
     .cell {
         border: black 1px solid;
         width: 30px;
@@ -27,7 +18,7 @@
 </style>
 <script src="snakeJS.js"></script>
 <body>
-    <button id="clickMe" onclick="buildGameField('gameField'); runSnake();">New game</button>
+    <button id="clickMe" onclick="buildGameField('gameField'); beginGame();">New game</button>
     <div class="gameField"></div>
 </body>
 

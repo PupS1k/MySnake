@@ -1,180 +1,172 @@
-let row = 5, column = 5;
-let checkRun = null;
-let motionSnake = null;
-let firstStepSnake = 2;
-let snake = ['f55',];
-let checkUnfinishedMovement = true;
-let checkOppositeMovement = null;
-let checkEatAnApple = true;
-
-const locationSnake = [[5, 5]];
+let locationSnake = [55];
+let sizeSnake = 3;
 const sizeField = 10;
-const locationApple = [];
-
-
-let masIdField = [];
-for (let i = 0; i < 10; i++) {
-    masIdField[i] = [];
-    for (let j = 0; j < 10; j++) {
-        masIdField[i][j] = 0;
-    }
-}
+let locationApple;
+let appleIsExist = false;
+let counterCreateApple = 0
+const speed = 300;
 
 function buildGameField(id) {
     document.getElementById('clickMe').style.display = 'none';
     let gameField = document.getElementsByClassName(id)[0];
 
     for (let i = 0; i < sizeField; i++) {
-        let rowCells = document.createElement("div");
-        rowCells.setAttribute('class', 'rowCells');
+        let columnCells = document.createElement("div");
+        columnCells.setAttribute('class', 'columnCells');
 
-        for (let i = 0; i < sizeField; i++) {
+        for (let j = 0; j < sizeField; j++) {
             let cell = document.createElement("div");
-            cell.setAttribute('cellNumber', i+1);
+            cell.setAttribute('cellnumber', i * sizeField + j + 1);
             cell.setAttribute('class', 'cell');
-            rowCells.appendChild(cell);
+            columnCells.appendChild(cell);
         }
 
-        gameField.appendChild(rowCells);
+        gameField.appendChild(columnCells);
     }
 }
 
-function arrowMotionProcessing(){
-    if (firstStepSnake > 0) {
-        firstStepSnake--;
-    }
-    else {
-        if (document.getElementById(masIdField[row][column]).style.backgroundColor === 'red') {
-            alert("Конец игры!!!   \n Ваш счет: " + snake.length);
-            location.reload(false);
-        }
-        if (document.getElementById(masIdField[row][column]).style.backgroundColor === 'purple') {
-            firstStepSnake++;
-            checkEatAnApple = true;
-        }
-        document.getElementById(snake[0]).style.backgroundColor = 'green';
-        snake.shift();
-    }
-    document.getElementById(masIdField[row][column]).style.backgroundColor = 'red';
-    snake.push(masIdField[row][column]);
-    checkUnfinishedMovement = true;
+function runSnakeDown() {
+    const lastStepSnake = locationSnake[locationSnake.length - 1];
+    const borderDown = Math.ceil(lastStepSnake / sizeField) * sizeField;
+
+    return lastStepSnake + 1 > borderDown ? lastStepSnake - sizeField + 1 : lastStepSnake + 1
 }
 
+function runSnakeUp() {
+    const lastStepSnake = locationSnake[locationSnake.length - 1];
+    const borderUp = Math.floor((lastStepSnake - 1) / sizeField) * sizeField + 1;
 
-function moveRight() {
-    column === 9 ? column = 0 : column++;
-    arrowMotionProcessing();
-}
-
-function moveUp() {
-    row === 0 ? row = 9 : row--;
-    arrowMotionProcessing();
+    return lastStepSnake - 1 < borderUp ? lastStepSnake + sizeField - 1 : lastStepSnake - 1;
 }
 
-function moveLeft() {
-    column === 0 ? column = 9 : column--;
-    arrowMotionProcessing();
+function runSnakeLeft() {
+    const lastStepSnake = locationSnake[locationSnake.length - 1];
+    const borderLeft = lastStepSnake % sizeField || sizeField;
+    
+    return lastStepSnake - sizeField < borderLeft ? (sizeField - 1) * 10 + borderLeft : lastStepSnake - sizeField;
 }
 
-function moveDown() {
-    row === 9 ? row = 0: row++;
-    arrowMotionProcessing();
-}
-function pushProcessingDU(run) {
-    if (checkUnfinishedMovement) {
-        if (!checkOppositeMovement || checkOppositeMovement === null) {
-            checkOppositeMovement = true;
-            checkUnfinishedMovement = false;
-            clearInterval(motionSnake);
-            checkRun = event.code;
-            motionSnake = setInterval(run, 300);
-        }
-    }
-}
-function pushProcessingLR(run) {
-    if (checkUnfinishedMovement) {
-        if (checkOppositeMovement || checkOppositeMovement === null) {
-            checkOppositeMovement = false;
-            checkUnfinishedMovement = false;
-            clearInterval(motionSnake);
-            checkRun = event.code;
-            motionSnake = setInterval(run, 300);
-        }
-    }
-}
+function runSnakeRight() {
+    const lastStepSnake = locationSnake[locationSnake.length - 1];
+    const borderRight = (lastStepSnake % sizeField || sizeField) + (sizeField - 1) * 10;
 
+    return lastStepSnake + sizeField > borderRight ? (lastStepSnake % sizeField || sizeField) : lastStepSnake + sizeField;
+}
 
 function calculateLocationApple() {
-    const row = Math.floor(Math.random() * (sizeField - 1)) + 1;
-    const column = Math.floor(Math.random() * (sizeField - 1)) + 1;
+    do {
+        locationApple = Math.floor(Math.random() * (sizeField * sizeField - 1)) + 1;
+    } while(locationSnake.includes(locationApple))
+}
 
-    locationApple[0] = row;
-    locationApple[1] = column;
+function createApple() {
 
-    return setTimeout(calculateLocationApple, 5000);
+    if(counterCreateApple === Math.ceil(speed * 3 / 100)) {
+        changeColorCell(locationApple, 'transparent');
+        counterCreateApple = 0;
+    }
+
+    calculateLocationApple();
+    changeColorCell(locationApple, 'red');
+
+    appleIsExist = true;
+}
+
+let directionSnake = 'up';
+
+function changeColorCell(location, color) {
+    const cells = Array.from(document.getElementsByClassName('cell'));
+    const cell = cells.find(cell => cell.getAttribute('cellnumber') == location);
+
+    cell.style.backgroundColor = color;
+}
+
+function calculateLocationStep() {
+    switch(directionSnake) {
+        case 'up':
+            return runSnakeUp();
+        case 'down':
+            return runSnakeDown();
+        case 'right':
+            return runSnakeRight();
+        case 'left':
+            return runSnakeLeft();
+        default:
+            break;
+    }
+}
+
+function checkAppleEaten(cell) {
+    return locationSnake[locationSnake.length - 1] === locationApple;
+} 
+
+function checkIsFinishGame(cell) {
+    return locationSnake.includes(cell);
+}
+
+function deleteLastStep() {
+    changeColorCell(locationSnake[0], 'transparent');
+    locationSnake = locationSnake.filter((location, index) => index !== 0);
+}
+
+function moveSnake() {
+    const cell = calculateLocationStep();
+    
+    if(checkIsFinishGame(cell)) {
+        alert(`Конец игры!!! Ваш счет ${locationSnake.length}`);
+        location.reload(false);
+    }
+
+    locationSnake.push(cell);
+    
+    if(locationSnake.length > sizeSnake) {
+        deleteLastStep();
+    }
+
+    changeColorCell(cell, 'green');
+    
+    if(checkAppleEaten(cell)) {
+        appleIsExist = false;
+        counterCreateApple = 0;
+        sizeSnake++;
+    }
+
 }
 
 function runSnake() {
+    if(!appleIsExist || counterCreateApple === Math.ceil(speed * 3 / 100)) {
+        createApple();
+    }
+
+    moveSnake();
+
+    counterCreateApple++;
+
+    return setTimeout(runSnake, speed);
+}
+
+function beginGame() {
+
     document.addEventListener('keydown', function(event) {
-
-        calculateLocationApple();
-
-        switch(event.code) {
-            case 'ArrowLeft':
-                console.log('left');
+        switch (event.code) {
+            case "ArrowDown":
+                directionSnake = directionSnake !== 'up' ? 'down' : 'up';
                 break;
-            case 'ArrowUp':
-                console.log('up');
+            case "ArrowUp":
+                directionSnake = directionSnake !== 'down' ? 'up' : 'down';
                 break;
-            case 'ArrowRight':
-                console.log('right');
+            case "ArrowRight":
+                directionSnake = directionSnake !== 'left' ? 'right' : 'left';
                 break;
-            case 'ArrowDown':
-                console.log('down');
+            case "ArrowLeft":
+                directionSnake = directionSnake !== 'right' ? 'left' : 'right';
                 break;
             default:
                 break;
         }
       });
-    // document.onkeydown = function (event) {
-    //     setInterval(checkAppleOnSnake, 100);
-    //     if (checkRun !== event.code)
-    //         switch (event.code) {
-    //             case "ArrowDown":
-    //                 pushProcessingDU(moveDown);
-    //                 break;
-    //             case "ArrowUp":
-    //                 pushProcessingDU(moveUp);
-    //                 break;
-    //             case "ArrowRight":
-    //                 pushProcessingLR(moveRight);
-    //                 break;
-    //             case "ArrowLeft":
-    //                 pushProcessingLR(moveLeft);
-    //                 break;
-    //         }
-    // };
+
+      runSnake();
+
+      locationSnake.shift();
 }
-
-function checkAppleOnSnake() {
-    if (checkEatAnApple) {
-        let idApple = null;
-        do {
-
-            idApple = appleIdGeneration();
-        } while (idApple === null);
-        let td = document.getElementById(idApple);
-        td.style.backgroundColor = 'purple';
-        checkEatAnApple = false;
-    }
-}
-
-function appleIdGeneration() {
-    let appleRow = Math.floor(Math.random() * 10), appleColumn = Math.floor(Math.random() * 10);
-    let appleId = masIdField[appleRow][appleColumn];
-    snake.forEach(sn => {
-        if (appleId === sn) appleId = null;
-    });
-    return appleId;
-}
-
