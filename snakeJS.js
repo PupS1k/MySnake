@@ -1,4 +1,4 @@
-let locationSnake = [55];
+let coordinatesSnake = [55];
 let directionSnake = 'up';
 let sizeSnake = 3;
 const sizeField = 10;
@@ -7,6 +7,7 @@ let appleIsExist = false;
 let counterCreateApple = 0
 const speed = 300;
 let queueEatApple = [];
+let canTakeStep = true;
 
 function buildGameField(id) {
     document.getElementById('clickMe').style.display = 'none';
@@ -28,28 +29,28 @@ function buildGameField(id) {
 }
 
 function runSnakeDown() {
-    const lastStepSnake = locationSnake[locationSnake.length - 1];
+    const lastStepSnake = coordinatesSnake[coordinatesSnake.length - 1];
     const borderDown = Math.ceil(lastStepSnake / sizeField) * sizeField;
 
     return lastStepSnake + 1 > borderDown ? lastStepSnake - sizeField + 1 : lastStepSnake + 1
 }
 
 function runSnakeUp() {
-    const lastStepSnake = locationSnake[locationSnake.length - 1];
+    const lastStepSnake = coordinatesSnake[coordinatesSnake.length - 1];
     const borderUp = Math.floor((lastStepSnake - 1) / sizeField) * sizeField + 1;
 
     return lastStepSnake - 1 < borderUp ? lastStepSnake + sizeField - 1 : lastStepSnake - 1;
 }
 
 function runSnakeLeft() {
-    const lastStepSnake = locationSnake[locationSnake.length - 1];
+    const lastStepSnake = coordinatesSnake[coordinatesSnake.length - 1];
     const borderLeft = lastStepSnake % sizeField || sizeField;
     
     return lastStepSnake - sizeField < borderLeft ? (sizeField - 1) * 10 + borderLeft : lastStepSnake - sizeField;
 }
 
 function runSnakeRight() {
-    const lastStepSnake = locationSnake[locationSnake.length - 1];
+    const lastStepSnake = coordinatesSnake[coordinatesSnake.length - 1];
     const borderRight = (lastStepSnake % sizeField || sizeField) + (sizeField - 1) * 10;
 
     return lastStepSnake + sizeField > borderRight ? (lastStepSnake % sizeField || sizeField) : lastStepSnake + sizeField;
@@ -58,11 +59,10 @@ function runSnakeRight() {
 function calculateLocationApple() {
     do {
         locationApple = Math.floor(Math.random() * (sizeField * sizeField - 1)) + 1;
-    } while(locationSnake.includes(locationApple))
+    } while(coordinatesSnake.includes(locationApple))
 }
 
 function createApple() {
-
     if(counterCreateApple === Math.ceil(speed * 3 / 100)) {
         changeColorCell(locationApple, 'transparent');
         counterCreateApple = 0;
@@ -76,7 +76,7 @@ function createApple() {
 
 
 function changeColorCell(location, color) {
-    const cells = Array.from(document.getElementsByClassName('cell'));
+    const cells = [...document.getElementsByClassName('cell')];
     const cell = cells.find(cell => cell.getAttribute('cellnumber') == location);
 
     cell.style.backgroundColor = color;
@@ -97,43 +97,41 @@ function calculateLocationStep() {
     }
 }
 
-function checkAppleEaten(cell) {
-    return locationSnake[locationSnake.length - 1] === locationApple;
+function checkIsAppleEaten(cell) {
+    return coordinatesSnake[coordinatesSnake.length - 1] === locationApple;
 } 
 
 function checkIsFinishGame(cell) {
-    return locationSnake.includes(cell);
+    return coordinatesSnake.includes(cell);
 }
 
 function deleteLastStep(step) {
-    changeColorCell(locationSnake[0], 'transparent');
-    locationSnake = locationSnake.filter((location, index) => index !== 0);
+    changeColorCell(coordinatesSnake[0], 'transparent');
+    coordinatesSnake = coordinatesSnake.filter((location, index) => index !== 0);
 }
 
 function increaseSnake() {
     changeColorCell(queueEatApple[0].step, 'green');
 
-    locationSnake = [queueEatApple[0].step, ...locationSnake];
-
+    coordinatesSnake = [queueEatApple[0].step, ...coordinatesSnake];
     queueEatApple = queueEatApple.filter((location, index) => index !== 0);
 }
 
-function moveSnake() {
+function takeStep() {
     const cell = calculateLocationStep();
     
     if(checkIsFinishGame(cell)) {
-        alert(`Конец игры!!! Ваш счет ${locationSnake.length}`);
+        alert(`Конец игры!!! Ваш счет ${coordinatesSnake.length}`);
         location.reload(false);
     }
 
-    locationSnake.push(cell);
+    coordinatesSnake.push(cell);
     
-    if(locationSnake.length > sizeSnake) {
+    if(coordinatesSnake.length > sizeSnake) {
         deleteLastStep();
     }
 
     if(queueEatApple.length) {
-
         queueEatApple.forEach(cell => {
             cell.counter--;
         })
@@ -145,33 +143,29 @@ function moveSnake() {
 
     changeColorCell(cell, 'green');
     
-    if(checkAppleEaten(cell)) {
+    if(checkIsAppleEaten(cell)) {
         appleIsExist = false;
         counterCreateApple = 0;
-        queueEatApple.push({step: cell, counter: locationSnake.length});
+        queueEatApple.push({step: cell, counter: coordinatesSnake.length});
     }
 
 }
 
 function runSnake() {
-
     canTakeStep = true;
     
     if(!appleIsExist || counterCreateApple === Math.ceil(speed * 3 / 100)) {
         createApple();
     }
 
-    moveSnake();
+    takeStep();
 
     counterCreateApple++;
 
     return setTimeout(runSnake, speed);
 }
 
-let canTakeStep = true;
-
 function beginGame() {
-
     document.addEventListener('keydown', function(event) {
         if(canTakeStep) {
             canTakeStep = false;
@@ -196,5 +190,5 @@ function beginGame() {
 
       runSnake();
 
-      locationSnake.shift();
+      coordinatesSnake.pop();
 }
